@@ -1,0 +1,71 @@
+t = (0:.05:100);
+f=6;n=30;Fs=24;       
+C = cos(2*pi*f/Fs*t);
+subplot(3,3,1)
+plot(t,C);
+title('I/P COSINE WAVE');
+lpf=fir1(n,0.33,'low');%LPF
+z=impz(lpf);
+subplot(3,3,2)
+stem(z)
+title('IMP RESPONSE OF LPF');
+fil=filter(z,1,C); % Pass input through LPF
+%Threee Polyphases
+  for i=1:n/3
+      fil0(i)=z((3*i)+1);
+  end
+  %disp(fil0)
+  subplot(3,3,4)
+  stem(fil0);
+  title('IMP RESPONSE OF 1st POLYPHASE ');
+  for i=1:(n/3)-1
+      fil1(i)=z(2+(3*i));
+  end
+  subplot(3,3,5)
+  stem(fil1);
+  title('IMP RESPONSE OF 2nd POLYPHASE ');
+  for i=1:(n/3)
+      fil2(i)=z(3*i);
+  end
+  subplot(3,3,6)
+  stem(fil2);
+  title('IMP RESPONSE OF 3rd POLYPHASE ');
+  %Passed I/P Through 1st Phase
+pol1=filter(fil0,1,C);
+for i=1:length(pol1)
+    pfp1(i)=(1.05*pol1(i))-(0.35*(pol1(i))^3); %Passed Filtered O/P Through Polynomial
+end
+x1=filter(fil2,1,pfp1); % Passed Poly O/P Through LPF 1st Polyphase
+%disp(pol1)
+subplot(3,3,7)
+semilogx(abs(fft(x1)));
+title('FINAL RESPONSE OF 1st POLYPHASE ');
+pol2=filter(fil1,1,C);
+for i=1:length(pol2)
+    pfp2(i)=(1.05*pol2(i))-(0.35*(pol2(i))^3); %Passed Filtered O/P Through Polynomial
+end
+x2=filter(fil1,1,pfp2); % Passed Polynomial O/P Through LPF 2nd Polyphase 
+subplot(3,3,8)
+%disp(pol2)
+semilogx(abs(fft(x2)));
+title('FINAL RESPONSE OF 2nd POLYPHASE ');
+pol3=filter(fil2,1,C);
+for i=1:length(pol3)
+    pfp3(i)=(1.05*pol3(i))-(0.35*(pol3(i))^3); %Passed Filtered O/P Through Polynomial
+end
+x3=filter(fil0,1,pfp3); % Passed Polynomial O/P Through LPF 3rd Polyphase
+%disp(pol3)
+subplot(3,3,9)
+semilogx(abs(fft(x3)));
+title('FINAL RESPONSE OF 3rd POLYPHASE ');
+X=x1+x2+x3;
+subplot(3,3,3)
+plot(X);
+title('O/P COSINE WAVE')
+figure
+subplot(1,2,1)
+plot(X);
+title('O/P in t-domain');
+subplot(1,2,2)
+semilogx(abs(fft(X)));
+title('O/P in f-domain');
