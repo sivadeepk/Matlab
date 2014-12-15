@@ -1,0 +1,41 @@
+data=input('Input data table:','s') 
+for j=1:2
+    RNG=[1 1 251 6];%range of data in the table to analyse
+    M=csvread(data,1,1,RNG);
+    ClosePrice=M(:,4);
+    x=ClosePrice';
+    SIZE=[40 80];%choose two different N for the filter
+    y=filter(ones(1,SIZE(j)),1,x);
+    for i=1:SIZE(j)-1%Compute the moving average for less than N pieces data
+        y(i)=y(i)/i;
+    end
+    for i=SIZE(j):size(y,2)
+        y(i)=y(i)/SIZE(j);
+    end
+    y1(j,:)=y(1,:);
+end
+%[xout,yout]=intersections(y1(1,:),y1(2,:));
+figure;
+hold on;
+plot(y1(1,:),'r');
+%set(gca,'xlim',[min(t) max(t)],'ylim',[-1.1 1.1])
+plot(y1(2,:),'b');
+%plot(xout,yout,'r.','markersize',18)
+xlabel('Date');
+ylabel('Closeprice');
+
+j=1;
+k=1;
+for i=1:size(y1,2)-1
+    if y1(1,i)<y1(2,i) & y1(1,i+1)>y1(2,i+1)%the cross of the short-term moving average above the longer-term moving average
+        buy(j)=i;
+        j=j+1;
+    elseif y1(1,i)>y1(2,i) & y1(1,i+1)<y1(2,i+1)%the cross of the long-term moving average above the short-term moving average
+        sell(k)=i;
+        k=k+1;
+    end
+end
+disp(['Sell at day']);
+disp(sell);
+disp(['Buy at day']);
+disp(buy);
