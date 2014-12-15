@@ -1,0 +1,59 @@
+clear all;
+close all;
+Fs=48000;
+Np=6300;
+Wp=2*8000/Fs;
+Ws=2*10000/Fs;
+Rp=1;
+Rs=40;
+[N1, Wn] = buttord(Wp, Ws, Rp, Rs);%Butterworthfilter
+%N1=11;
+[B1,A1] = butter(N1,Wn);
+[H1,F1] = freqz(B1,A1,Np,Fs);
+figure(1);
+subplot(4,1,1);
+Y1=20*log10(abs(H1));
+[Rp1, Rs1]=rsrp(Y1,Wp,Ws,Np);%verification
+plot(F1,Y1,'r');
+[N2, Wp] = cheb1ord(Wp, Ws, Rp, Rs);%Chebyshev Type I
+[B2,A2] = cheby1(N2,Rp,Wp);
+[H2,F2] = freqz(B2,A2,Np,Fs);
+subplot(4,1,2);
+Y2=20*log10(abs(H2));
+[Rp2, Rs2]=rsrp(Y2,Wp,Ws,Np);%verification
+plot(F2,Y2,'b');
+[N3, Ws] = cheb2ord(Wp, Ws, Rp, Rs);%Chebyshev Type II
+[B3,A3] = cheby2(N3,Rp,Ws);
+[H3,F3] = freqz(B3,A3,Np,Fs);
+subplot(4,1,3);
+Y3=20*log10(abs(H3));
+[Rp3, Rs3]=rsrp(Y3,Wp,Ws,Np);%verification
+plot(F3,Y3,'g');
+[N4, Wp] = ellipord(Wp, Ws, Rp, Rs);%Elliptic
+%N4=4;
+[B4,A4] = ellip(N4,Rp,Rs,Wp);
+[H4,F4] = freqz(B4,A4,Np,Fs);
+subplot(4,1,4);
+Y4=20*log10(abs(H4));
+[Rp4, Rs4]=rsrp(Y4,Wp,Ws,Np);%verification
+plot(F4,Y4,'k');
+
+figure(2);
+[N5,Wn,BTA,FILTYPE] = kaiserord([10000 15000],[1 0],[0.891 0.001],Fs);
+N5=34;
+B5= fir1(N5, Wn, FILTYPE, kaiser(N5+1,BTA), 'noscale');
+[H5,F5] = freqz(B5,1,Np,Fs);
+Y5=20*log10(abs(H5));
+[Rp5, Rs5]=rsrp(Y5,Wp,Ws,Np);%verification
+subplot(2,1,1);
+plot(F5,Y5,'k');
+
+
+N6=13700;
+B6=fir1(N6,10/24,'low',blackman(N6+1));
+[H6,F6] = freqz(B6,1,Np,Fs);
+Y6=20*log10(abs(H6));
+[Rp6, Rs6]=rsrp(Y6,10/24,Ws,Np);%verification
+subplot(2,1,2);
+plot(F6,Y6,'k');
+
