@@ -1,0 +1,56 @@
+clear all;
+close all;
+Fs=48000;
+Np=4800;
+Ws1=2*6000/Fs;
+Wp1=2*7000/Fs;
+Wp2=2*12000/Fs;
+Ws2=2*17000/Fs;
+Rp=0.01;
+Rs=0.01;
+
+
+F=[6300 6500 15000 16500];
+A=[0 1 0];
+DEV=[0.008 0.005 0.008];
+[N1,Wn,BTA,FILTYPE] = kaiserord(F,A,DEV,Fs);%kaiserwindow
+N1=175;
+B1 = fir2(N1,[0 6.3/24 6.5/24 15/24 16.5/24 1],[0 0 1 1 0 0], kaiser(N1+1,BTA)); 
+[H1,F1] = freqz(B1,1,Np,Fs);
+[Rp1, Rs11, Rs12]=band(H1,Wp1,Ws1,Wp2,Ws2,Np);%verification
+figure;
+subplot(5,1,1);
+plot(F1,abs(H1));
+
+N2=280;%blackmanwindow
+B2=fir2(N2,[0 6.3/24 6.5/24 15/24 16.5/24 1],[0 0 1 1 0 0],blackman(N2+1));
+[H2,F2] = freqz(B2,1,Np,Fs);
+[Rp2, Rs21, Rs22]=band(H2,Wp1,Ws1,Wp2,Ws2,Np);%verification
+subplot(5,1,2);
+plot(F2,abs(H2));
+
+N3=207;%hammingwindow
+B3=fir2(N3,[0 6.3/24 6.5/24 15/24 16.5/24 1],[0 0 1 1 0 0],hamming(N3+1));
+[H3,F3] = freqz(B3,1,Np,Fs);
+[Rp3, Rs31, Rs32]=band(H3,Wp1,Ws1,Wp2,Ws2,Np);%verification
+subplot(5,1,3);
+plot(F3,abs(H3));
+
+N4=209;%hannwindow
+B4=fir2(N4,[0 6.3/24 6.5/24 15/24 16.5/24 1],[0 0 1 1 0 0],hann(N4+1));
+[H4,F4] = freqz(B4,1,Np,Fs);
+[Rp4, Rs41, Rs42]=band(H4,Wp1,Ws1,Wp2,Ws2,Np);%verification
+subplot(5,1,4);
+plot(F4,abs(H4));
+
+
+F=[6300 6500 15000 16500];
+A=[0 1 0];
+DEV=[0.01 0.002 0.01];
+[N5,Fo,Ao,W] = firpmord(F,A,DEV,Fs);%firpm
+B5=firpm(N5,Fo,Ao,W);
+[H5,F5] = freqz(B5,1,Np,Fs);
+[Rp5, Rs51, Rs52]=band(H5,Wp1,Ws1,Wp2,Ws2,Np);%verification
+subplot(5,1,5);
+plot(F5,abs(H5));
+
